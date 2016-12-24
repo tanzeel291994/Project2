@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Project2</string>
+    <string name="action_settings">Sort by votes</string>
+    <string name="title">Title:</string>
+    <string name="image">Image:</string>
+    <string name="synopsis">Overview:</string>
+    <string name="rating">Rating:</string>
+    <string name="date">Release date:</string>
+    <string name="popular_movies">Sort by popularity</string>
+    <string name="favourites">Favourites</string>
+    <string name="favourite">Favourite</string>
+    <string name="trailer">Trailer</string>
+</resources>
