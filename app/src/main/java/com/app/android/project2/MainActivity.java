@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     int RESULT_STATUS;
     Movie_adapter madapter;
     public static ArrayList<Movie_model> movies;
-    String discover_movies="https://api.themoviedb.org/3/discover/movie?api_key=60e7c427c564cf915fd06a078398855a&page=1";
-    String sort_movies="https://api.themoviedb.org/3/discover/movie?api_key=60e7c427c564cf915fd06a078398855a&page=1&sort_by=vote_average.des";
+    String discover_movies="https://api.themoviedb.org/3/movie/popular?api_key=60e7c427c564cf915fd06a078398855a&page=1";
+    String sort_movies="https://api.themoviedb.org/3/movie/top_rated?api_key=60e7c427c564cf915fd06a078398855a&page=1";
     Menu menuTemp;
     RecyclerView recyclerview;
     Networking mnetworking;
@@ -270,33 +270,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapterFav.swapCursor(null);
     }
 
-    public class DataBaseOpeation extends AsyncTask<Void, Void, Cursor>
-    {
-
-
-        @Override
-        protected Cursor doInBackground(Void... params)
-        {
-            ContentResolver resolver = getContentResolver();
-
-            Cursor cursor = resolver.query(MovieContract.MovieEntry.CONTENT_URI,
-                    null, null, null, null);
-            return cursor;
-        }
-
-
-
-        protected void onPostExecute(Cursor cursor) {
-            super.onPostExecute(cursor);
-            mData = cursor;
-
-        }
-    }
 
     public class Networking extends AsyncTask<String, Void,Void>
     {
-
-
         @Override
         protected Void doInBackground(String... params)
         {
@@ -307,8 +283,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             catch (IOException e){}
             return  null;
         }
-
-
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
