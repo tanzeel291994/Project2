@@ -7,6 +7,9 @@ import android.graphics.Movie;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcelable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,7 +40,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
     HttpURLConnection urlConnection=null;
     BufferedReader reader=null;
     String jsonstring=null;
@@ -53,6 +56,14 @@ public class MainActivity extends AppCompatActivity{
     Menu menuTemp;
     RecyclerView recyclerview;
     Networking mnetworking;
+
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int MOVIE_LOADER_ID = 0;
+
+    // Member variables for the adapter and RecyclerView
+    private CustomCursorAdapter mAdapterFav;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,14 +79,28 @@ public class MainActivity extends AppCompatActivity{
                 Toast.makeText(getApplicationContext(), "Item Clicked", Toast.LENGTH_LONG).show();
                 Intent intent=new Intent(getApplicationContext(),MovieDetail.class);
                 intent.putExtra("Movie_item", movie_item);
+                intent.putExtra("type", "normal");
                 startActivity(intent);
             };
         },movies);
+        mAdapterFav = new CustomCursorAdapter(this,new CustomCursorAdapter.OnItemClickListener(){
+            @Override
+            public void onItemClick(Movie_model movie_item) {
+                Toast.makeText(getApplicationContext(), "Item Clicked", Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(getApplicationContext(),MovieDetail.class);
+                intent.putExtra("Movie_item", movie_item);
+                intent.putExtra("type", "fav");
+                startActivity(intent);
+            };});
         recyclerview = (RecyclerView) findViewById(R.id.recyclerview);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getApplicationContext(),3);
         recyclerview.setLayoutManager(mLayoutManager);
         recyclerview.setItemAnimator(new DefaultItemAnimator());
         recyclerview.setAdapter(madapter);
+
+
+
+
         /*final ActionBar ab = getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.sort);
         ab.setDisplayHomeAsUpEnabled(true);*/
@@ -102,7 +127,7 @@ public class MainActivity extends AppCompatActivity{
                 menuTemp.getItem(1).setEnabled(true);
                 menuTemp.getItem(0).setEnabled(false);
                 menuTemp.getItem(2).setEnabled(true);
-
+                recyclerview.setAdapter(madapter);
                 new Networking().execute(sort_movies);
                 break;
             case R.id.popular:
@@ -113,7 +138,7 @@ public class MainActivity extends AppCompatActivity{
                 menuTemp.getItem(0).setEnabled(true);
                 menuTemp.getItem(2).setEnabled(true);
                 menuTemp.getItem(1).setEnabled(false);
-
+                recyclerview.setAdapter(madapter);
                 new Networking().execute(discover_movies);
                 break;
             case R.id.favourites:
@@ -125,7 +150,12 @@ public class MainActivity extends AppCompatActivity{
                 menuTemp.getItem(1).setEnabled(true);
                 menuTemp.getItem(0).setEnabled(true);
 
-                new DataBaseOpeation().execute();
+                recyclerview.setAdapter(mAdapterFav);
+                 /*
+                Ensure a loader is initialized and active. If the loader doesn't already exist, one is
+                created, otherwise the last created loader is re-used.
+                */
+                getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);
                 break;
         }
         return true;
@@ -186,6 +216,58 @@ public class MainActivity extends AppCompatActivity{
             try{reader.close();}
             catch (final IOException e){}
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new AsyncTaskLoader<Cursor>(this) {
+            Cursor mTaskData = null;
+
+            // onStartLoading() is called when a loader first starts loading data
+            @Override
+            protected void onStartLoading() {
+                if (mTaskData != null) {
+                    // Delivers any previously loaded data immediately
+                    deliverResult(mTaskData);
+                } else {
+                    // Force a new load
+                    forceLoad();
+                }
+            }
+
+            @Override
+            public Cursor loadInBackground() {
+                try {
+                    return getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                            null, null, null, null);
+
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to asynchronously load data.");
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            // deliverResult sends the result of the load, a Cursor, to the registered listener
+            public void deliverResult(Cursor data) {
+                mTaskData = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+
+
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // Update the data that the adapter uses to create ViewHolders
+        mAdapterFav.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mAdapterFav.swapCursor(null);
     }
 
     public class DataBaseOpeation extends AsyncTask<Void, Void, Cursor>

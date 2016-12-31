@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Movie_adapter extends RecyclerView.Adapter<Movie_adapter.MyViewHolder> {
     Context mContext;
-    public interface OnItemClickListener
+     interface OnItemClickListener
     {
         void onItemClick(Movie_model movie_item);
     }
@@ -32,7 +32,7 @@ public ImageView poster;
         poster=(ImageView)view.findViewById(R.id.poster);
 
     }
-    public void bind(final Movie_model movie_item, final OnItemClickListener listener) {
+     void bind(final Movie_model movie_item, final OnItemClickListener listener) {
 
         Picasso.with(mContext).load(movie_item.poster_path).into(poster);
 

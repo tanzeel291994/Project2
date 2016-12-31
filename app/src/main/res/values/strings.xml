@@ -10,4 +10,6 @@
     <string name="favourites">Favourites</string>
     <string name="favourite">Favourite</string>
     <string name="trailer">Trailer</string>
+    <string name="author">author</string>
+    <string name="comment">comment</string>
 </resources>
