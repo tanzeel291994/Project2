@@ -6,7 +6,9 @@ import android.database.Cursor;
 import android.graphics.Movie;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -22,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.app.android.project2.data.MovieContract;
@@ -39,6 +42,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
     HttpURLConnection urlConnection=null;
@@ -56,12 +60,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     Menu menuTemp;
     RecyclerView recyclerview;
     Networking mnetworking;
-
-
+    private static final String STATE_COUNTER = "counter";
+    boolean firstChecked=false;
+    boolean secondChecked=false;
+    boolean thirdChecked=false;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int MOVIE_LOADER_ID = 0;
 
-    // Member variables for the adapter and RecyclerView
     private CustomCursorAdapter mAdapterFav;
 
     @Override
@@ -97,21 +102,81 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         recyclerview.setLayoutManager(mLayoutManager);
         recyclerview.setItemAnimator(new DefaultItemAnimator());
         recyclerview.setAdapter(madapter);
+      if(savedInstanceState!=null )
+        {
+            Log.i("tag", savedInstanceState.getString("type"));
+            firstChecked=savedInstanceState.getBoolean("0");
+            secondChecked=savedInstanceState.getBoolean("1");
+            thirdChecked=savedInstanceState.getBoolean("2");
+            if(Objects.equals(savedInstanceState.getString("type"), "normal")) {
+                Log.i("tag", String.valueOf(movies.size()));
+                movies = savedInstanceState.getParcelableArrayList("list");
+                Log.i("tag", String.valueOf(movies.size()));
+                // madapter.notifyDataSetChanged(); tried using this ,but the screen comes ,empty so reinitalized the adapter here
+                madapter = new Movie_adapter(this, new Movie_adapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Movie_model movie_item) {
+                        Toast.makeText(getApplicationContext(), "Item Clicked", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(getApplicationContext(), MovieDetail.class);
+                        intent.putExtra("Movie_item", movie_item);
+                        intent.putExtra("type", "normal");
+                        startActivity(intent);
+                    }
 
+                    ;
+                }, movies);
+                recyclerview.setAdapter(madapter);
+                //  madapter.notifyDataSetChanged();
+            }
+            else
+            {
+                recyclerview.setAdapter(mAdapterFav);
+                getSupportLoaderManager().initLoader(MOVIE_LOADER_ID, null, this);}
+        }
+        else
+       {
+            mnetworking= new Networking();
+            mnetworking.execute(discover_movies);
+        }
 
-
-
-        /*final ActionBar ab = getSupportActionBar();
-        ab.setHomeAsUpIndicator(R.drawable.sort);
-        ab.setDisplayHomeAsUpEnabled(true);*/
-        mnetworking= new Networking();
-        mnetworking.execute(discover_movies);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i("Tag", String.valueOf(menuTemp.getItem(0).isEnabled()));
+        Log.i("Tag", String.valueOf(menuTemp.getItem(2).isEnabled()));
+        if(!menuTemp.getItem(0).isEnabled()||!menuTemp.getItem(1).isEnabled())
+        {
+            outState.putParcelableArrayList("list",movies);
+            outState.putString("type","normal");
+
+        }
+        else
+        {
+            outState.putString("type","fav");
+        }
+        outState.putBoolean("0",menuTemp.getItem(0).isEnabled());
+        outState.putBoolean("1",menuTemp.getItem(1).isEnabled());
+        outState.putBoolean("2",menuTemp.getItem(2).isEnabled());
+
+    }
+
+
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
-        menu.getItem(1).setEnabled(false);
+       if(!firstChecked&&!secondChecked&&!thirdChecked)
+       {
+           menu.getItem(1).setEnabled(false);
+       }
+        else
+       {
+           menu.getItem(0).setEnabled(firstChecked);
+           menu.getItem(1).setEnabled(secondChecked);
+           menu.getItem(2).setEnabled(thirdChecked);
+       }
         menuTemp=menu;
         return super.onCreateOptionsMenu(menu);
     }
@@ -121,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         switch(item.getItemId())
         {
             case R.id.sort:
-                Toast.makeText(getBaseContext(), "Sorting......", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(),"Sorting......", Toast.LENGTH_SHORT).show();
 
                 movies.clear();
                 menuTemp.getItem(1).setEnabled(true);
@@ -131,8 +196,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 new Networking().execute(sort_movies);
                 break;
             case R.id.popular:
-                Toast.makeText(getBaseContext(), "Sorting.by popularity", Toast.LENGTH_SHORT).show();
-                mnetworking.cancel(true);
+                Toast.makeText(getBaseContext(),"Sorting.by popularity", Toast.LENGTH_SHORT).show();
+                //mnetworking.cancel(true);
                 movies.clear();
 
                 menuTemp.getItem(0).setEnabled(true);
@@ -143,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 break;
             case R.id.favourites:
                 Toast.makeText(getBaseContext(), "Fetching your favourites", Toast.LENGTH_SHORT).show();
-                mnetworking.cancel(true);
+               // mnetworking.cancel(true);
                 movies.clear();
 
                 menuTemp.getItem(2).setEnabled(false);
@@ -163,7 +228,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void loadingPoster(String s) throws IOException
     {
         URL url = new URL(s);
-
         urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod("GET");
         urlConnection.connect();
@@ -228,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             protected void onStartLoading() {
                 if (mTaskData != null) {
                     // Delivers any previously loaded data immediately
+                    Log.i("tag","ini");
                     deliverResult(mTaskData);
                 } else {
                     // Force a new load

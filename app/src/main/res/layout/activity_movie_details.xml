@@ -19,13 +19,14 @@
         android:layout_marginTop="16dp"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="@dimen/fab_margin"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginRight="16dp"
-        tools:ignore="ContentDescription" />
+        android:layout_marginRight="@dimen/fab_margin"
+        tools:ignore="ContentDescription"
+        app:layout_constraintHorizontal_bias="0.58" />
 
     <TextView
         tools:text="name of the movie"
@@ -60,14 +61,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/fav_btn"
         android:onClick="addToFav"
-        android:layout_marginStart="176dp"
-        app:layout_constraintLeft_toRightOf="@+id/release_date"
-        android:layout_marginLeft="176dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginRight="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/synopsis"
-        android:layout_marginBottom="8dp" />
+        app:layout_constraintRight_toRightOf="@+id/thumbnail_image_view"
+        app:layout_constraintTop_toBottomOf="@+id/thumbnail_image_view"
+        android:layout_marginTop="@dimen/fab_margin"
+        />
 
     <TextView
         tools:text="ConstraintLayout allows you to create large and complex layouts with a flat view hierarchy (no nested view groups). It's similar to RelativeLayout in that all views are layed out according to relationships between sibling views and the parent layout, but it's more flexible than RelativeLayout and easier to use with Android Studio's Layout Editor.
@@ -78,7 +75,7 @@
         app:layout_constraintRight_toRightOf="@+id/fav_btn"
         app:layout_constraintLeft_toLeftOf="@+id/user_rating"
         app:layout_constraintTop_toBottomOf="@+id/user_rating"
-        android:padding="16dp"/>
+        android:padding="@dimen/fab_margin"/>
 
     <Button
         android:text="@string/trailer"
@@ -90,7 +87,7 @@
         app:layout_constraintLeft_toLeftOf="@+id/user_rating" />
 
     <ListView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="@+id/trailer_btn"
         app:layout_constraintTop_toBottomOf="@+id/trailer_btn"

@@ -53,7 +53,7 @@ public class MovieDetail extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
-         movie_item=(Movie_model) getIntent().getSerializableExtra("Movie_item");
+         movie_item=(Movie_model) getIntent().getParcelableExtra("Movie_item");
         String type=getIntent().getStringExtra("type");
         title_text = (TextView) findViewById(R.id.original_title);
          rating_text = (TextView) findViewById(R.id.user_rating);

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Movie_adapter extends RecyclerView.Adapter<Movie_adapter.MyViewHolder> {
