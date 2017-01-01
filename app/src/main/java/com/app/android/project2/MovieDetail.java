@@ -252,7 +252,14 @@ public class MovieDetail extends AppCompatActivity {
         contentValues.put(MovieContract.MovieEntry.COLUMN_BACKGROUND_PATH, movie_item.thumbnail_path);
         contentValues.put(MovieContract.MovieEntry.COLUMN_MOVIE_ID, movie_item.id);
 
-        Uri uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+        Uri uri=null;
+        try {
+            uri = getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
+        }
+        catch (Exception e)
+        {
+            Toast.makeText(getBaseContext(),"Movie is already in favourites", Toast.LENGTH_LONG).show();
+        }
         if(uri != null) {
             Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
         }

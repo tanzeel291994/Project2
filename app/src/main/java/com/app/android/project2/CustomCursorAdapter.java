@@ -46,14 +46,7 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
         int date_Index = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
         int votes_Index = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE);
         int overview_Index = mCursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW);
-/*
-        movie_list.add(new Movie_model(mCursor.getString(movie_ID_Index)
-                , mCursor.getString(background_Path_Index),
-                mCursor.getString(title_Index),
-                mCursor.getString(date_Index),
-                mCursor.getString(votes_Index), mCursor.getString(overview_Index)
-                , mCursor.getString(poster_Path_Index)));
-*/
+
         mCursor.moveToPosition(position);
         String poster_path = mCursor.getString(poster_Path_Index);
         movie_list.add(new Movie_model(mCursor.getString(movie_ID_Index)
@@ -62,11 +55,6 @@ public class CustomCursorAdapter extends RecyclerView.Adapter<CustomCursorAdapte
                 mCursor.getString(date_Index),
                 mCursor.getString(overview_Index), mCursor.getString(votes_Index)
                 , mCursor.getString(poster_Path_Index)));
-      /* Picasso.with(mContext)
-                .load(poster_path)
-                .placeholder(R.mipmap.ic_launcher)
-                .error(R.mipmap.ic_launcher)
-                .into(holder.poster);*/
         holder.bind(movie_list.get(position), listener);
     }
 

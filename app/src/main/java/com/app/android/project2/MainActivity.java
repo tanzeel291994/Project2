@@ -292,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             protected void onStartLoading() {
                 if (mTaskData != null) {
                     // Delivers any previously loaded data immediately
-                    Log.i("tag","ini");
                     deliverResult(mTaskData);
                 } else {
                     // Force a new load
